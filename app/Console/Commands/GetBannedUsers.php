@@ -21,12 +21,11 @@ class GetBannedUsers extends Command
     /**
      * Execute the console command.
      */
-    public function handle(BannedUser $bannedUser)
+    public function handle(BannedUser $bannedUser): int
     {
-        $uu = $bannedUser->getBannedUsers($this->option());
-        echo ($uu);
-        if($this->argument('save-to')) {
-            file_put_contents(explode('=',$this->argument('save-to'))[1],$uu);
-        }
+        $bannedUsers = $bannedUser->getBannedUsers($this->option());
+        echo ($bannedUsers);
+
+        return Command::SUCCESS;
     }
 }
