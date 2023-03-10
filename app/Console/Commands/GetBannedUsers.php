@@ -2,16 +2,17 @@
 
 namespace App\Console\Commands;
 
-use App\Models\User;
-use App\Service\BannedUser;
+use App\Service\BannedUsers;
+use App\Service\BannedUsersFileWriter;
 use Illuminate\Console\Command;
+use Symfony\Component\Console\Command\Command as CommandAlias;
 
 class GetBannedUsers extends Command
 {
     /**
      * The name and signature of the console command.
      */
-    protected $signature = 'banned-users:get {save-to?} {--active-users-only} {--with-trashed} {--trashed-only} {--no-admin} {--admin-only} {sort-by=email} {--with-headers}';
+    protected $signature = 'banned-users:get {save-to?} {--active-users-only} {--with-trashed} {--trashed-only} {--no-admin} {--admin-only} {--sort-by=email} {--with-headers}';
 
     /**
      * The console command description.
@@ -21,11 +22,16 @@ class GetBannedUsers extends Command
     /**
      * Execute the console command.
      */
-    public function handle(BannedUser $bannedUser): int
+    public function handle(BannedUsers $bannedUser, BannedUsersFileWriter $bannedUsersFileWriter)
     {
-        $bannedUsers = $bannedUser->getBannedUsers($this->option());
-        echo ($bannedUsers);
 
-        return Command::SUCCESS;
+        $bannedUser->getBannedUsers($this->option());
+        $output = $bannedUser->getFormatData();
+        echo($output);
+        if ($this->argument('save-to')) {
+            $bannedUsersFileWriter->savefile($output, $this->argument('save-to'));
+        }
+
+        return CommandAlias::SUCCESS;
     }
 }
